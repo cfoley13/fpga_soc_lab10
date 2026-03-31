@@ -52,19 +52,21 @@ void print_benchmark(volatile unsigned int *periph_base)
     // the below code does a little benchmark, reading from the peripheral a bunch 
     // of times, and seeing how many clocks it takes.  You can use this information
     // to get an idea of how fast you can generally read from an axi-lite slave device
-    unsigned int start_time;
-    unsigned int stop_time;
+    unsigned int start_time, stop_time;
     start_time = *(periph_base+RADIO_TUNER_TIMER_REG_OFFSET);
+
     for (int i=0;i<2048;i++)
         stop_time = *(periph_base+RADIO_TUNER_TIMER_REG_OFFSET);
-    printf("Elapsed time in clocks = %u\n",stop_time-start_time);
-    float throughput=bytes_transferred/(time_spent*1000000); 
-    // please insert your code here for calculate the actual throughput in Mbytes/second
-    // how much data was transferred? How long did it take?
+
+    unsigned int num_clocks = stop_time - start_time;
     unsigned int bytes_transferred = 2048 * 4; // change obviously
-    float time_spent = ((float)stop_time - (float)start_time)/ 125000000.0; // change obviously
-    printf("You transferred %f bytes of data in %f seconds\n",bytes_transferred,time_spent);
-    printf("Measured Transfer throughput = %f Mbytes/sec\n",throughput);
+
+    float time_spent = (float)num_clocks / 125000000.0; // change obviously
+    float throughput=bytes_transferred/(time_spent*1000000.0); 
+    // how much data was transferred? How long did it take?
+    printf("Elapsed time in clocks = %u\n", num_clocks);
+    printf("You transferred %u bytes of data in %f seconds\n", bytes_transferred,time_spent);
+    printf("Measured Transfer throughput = %f Mbytes/sec\n", throughput);
 }
 
 int main()

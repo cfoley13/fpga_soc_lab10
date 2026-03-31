@@ -5,7 +5,7 @@
     "cell_name": "dds_compiler_1",
     "component_reference": "xilinx.com:ip:dds_compiler:6.0",
     "ip_revision": "28",
-    "gen_directory": "../../../../../../full_radio_v1_0_project.gen/sources_1/bd/radio_bd/ip/radio_bd_dds_compiler_1_1_1",
+    "gen_directory": "../../../../../../vivado/radio_periph_lab.tmp/full_radio_v1_0_project/full_radio_v1_0_project.gen/sources_1/ip/radio_bd_dds_compiler_1_1",
     "parameters": {
       "component_parameters": {
         "Component_Name": [ { "value": "radio_bd_dds_compiler_1_1", "resolve_type": "user", "usage": "all" } ],
@@ -180,7 +180,7 @@
         "IPCONTEXT": [ { "value": "IP_Integrator" } ],
         "IPREVISION": [ { "value": "28" } ],
         "MANAGED": [ { "value": "TRUE" } ],
-        "OUTPUTDIR": [ { "value": "../../../../../../full_radio_v1_0_project.gen/sources_1/bd/radio_bd/ip/radio_bd_dds_compiler_1_1_1" } ],
+        "OUTPUTDIR": [ { "value": "../../../../../../vivado/radio_periph_lab.tmp/full_radio_v1_0_project/full_radio_v1_0_project.gen/sources_1/ip/radio_bd_dds_compiler_1_1" } ],
         "SELECTEDSIMMODEL": [ { "value": "" } ],
         "SHAREDDIR": [ { "value": "../../../../../../ip_repo/full_radio/src/radio_bd/ipshared" } ],
         "SWVERSION": [ { "value": "2025.2" } ],
@@ -396,5 +396,5 @@
       }
     }
   },
-  "checksum": "9070c0a1"
+  "checksum": "5f5790ff"
 }

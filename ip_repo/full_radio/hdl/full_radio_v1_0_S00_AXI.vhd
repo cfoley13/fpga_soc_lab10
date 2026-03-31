@@ -152,6 +152,7 @@ COMPONENT dds_compiler_0
 	-- signal final_data : std_logic_vector(31 downto 0);
 	signal real_out : std_logic_vector(15 downto 0);
 	signal imag_out : std_logic_vector(15 downto 0);
+	signal timer_cntr : unsigned(31 downto 0) := (others => '0');
 
 -- end of caleb's additions :)
 
@@ -254,7 +255,7 @@ begin
 	      slv_reg0 <= (others => '0');
 	      slv_reg1 <= (others => '0');
 	      slv_reg2 <= (others => '0');
-	      slv_reg3 <= (others => '0');
+	    --   slv_reg3 <= (others => '0');
 	    else
 	      loc_addr := axi_awaddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
 	      if (slv_reg_wren = '1') then
@@ -284,18 +285,19 @@ begin
 	              end if;
 	            end loop;
 	          when b"11" =>
-	            for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
-	              if ( S_AXI_WSTRB(byte_index) = '1' ) then
+			    null;
+	            -- for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
+	            --   if ( S_AXI_WSTRB(byte_index) = '1' ) then
 	                -- Respective byte enables are asserted as per write strobes                   
 	                -- slave registor 3
-	                slv_reg3(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
-	              end if;
-	            end loop;
+	                -- slv_reg3(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
+	            --   end if;
+	            -- end loop;
 	          when others =>
 	            slv_reg0 <= slv_reg0;
 	            slv_reg1 <= slv_reg1;
 	            slv_reg2 <= slv_reg2;
-	            slv_reg3 <= slv_reg3;
+	            -- slv_reg3 <= slv_reg3;
 	        end case;
 	      end if;
 	    end if;
@@ -392,7 +394,7 @@ begin
 	      when b"00" =>
 	        reg_data_out <= slv_reg0;
 	      when b"01" =>
-	        reg_data_out <= x"DEADBEEC";
+	        reg_data_out <= x"DEADBEED";
 	      when b"10" =>
 	        reg_data_out <= slv_reg2;
 	      when b"11" =>
@@ -422,31 +424,43 @@ begin
 
 	-- Add user logic here
 
-given_fake_adc_dds : dds_compiler_0
-  PORT MAP (
-    aclk => s_axi_aclk,
-    aresetn => '1',
-    s_axis_phase_tvalid => '1',
-    s_axis_phase_tdata => slv_reg0,
-    -- m_axis_data_tvalid => m_axis_tvalid,
-    -- m_axis_data_tdata => m_axis_tdata
-    m_axis_data_tvalid => fake_adc_valid,
-    m_axis_data_tdata => fake_adc_data_real
-  );
+	given_fake_adc_dds : dds_compiler_0
+	PORT MAP (
+		aclk => s_axi_aclk,
+		aresetn => '1',
+		s_axis_phase_tvalid => '1',
+		s_axis_phase_tdata => slv_reg0,
+		-- m_axis_data_tvalid => m_axis_tvalid,
+		-- m_axis_data_tdata => m_axis_tdata
+		m_axis_data_tvalid => fake_adc_valid,
+		m_axis_data_tdata => fake_adc_data_real
+	);
 
-my_full_radio_bd : radio_bd
-  PORT MAP (
-    dds_fake_adc_tdata => fake_adc_data_total,
-    dds_fake_adc_tvalid => fake_adc_valid,
-    dds_tuner_tdata => slv_reg1,
-    dds_tuner_tvalid => '1',
-    sys_clk => s_axi_aclk,
-    resetn => '1',
-    real_data => real_out,
-    imag_data => imag_out,
-    tdata_valid(0) => m_axis_tvalid
-  );
+	my_full_radio_bd : radio_bd
+	PORT MAP (
+		dds_fake_adc_tdata => fake_adc_data_total,
+		dds_fake_adc_tvalid => fake_adc_valid,
+		dds_tuner_tdata => slv_reg1,
+		dds_tuner_tvalid => '1',
+		sys_clk => s_axi_aclk,
+		resetn => '1',
+		real_data => real_out,
+		imag_data => imag_out,
+		tdata_valid(0) => m_axis_tvalid
+	);
 
+	process(S_AXI_ACLK)
+	begin
+		if rising_edge(S_AXI_ACLK) then
+			if S_AXI_ARESETN = '0' then
+				timer_cntr <= (others => '0');
+			else
+				timer_cntr <= timer_cntr + 1;
+			end if;
+		end if;
+	end process;
+
+	slv_reg3 <= std_logic_vector(timer_cntr);
 	fake_adc_data_imag <= (others => '0');
 	fake_adc_data_total <= fake_adc_data_real & fake_adc_data_imag;
 	m_axis_tdata <= real_out & imag_out;
