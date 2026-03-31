@@ -394,7 +394,7 @@ begin
 	      when b"00" =>
 	        reg_data_out <= slv_reg0;
 	      when b"01" =>
-	        reg_data_out <= x"DEADBEED";
+	        reg_data_out <= x"DEADBEEE";
 	      when b"10" =>
 	        reg_data_out <= slv_reg2;
 	      when b"11" =>
@@ -427,11 +427,10 @@ begin
 	given_fake_adc_dds : dds_compiler_0
 	PORT MAP (
 		aclk => s_axi_aclk,
-		aresetn => '1',
+		-- aresetn => '1',
+		aresetn => not slv_reg2(0), -- active high reset
 		s_axis_phase_tvalid => '1',
 		s_axis_phase_tdata => slv_reg0,
-		-- m_axis_data_tvalid => m_axis_tvalid,
-		-- m_axis_data_tdata => m_axis_tdata
 		m_axis_data_tvalid => fake_adc_valid,
 		m_axis_data_tdata => fake_adc_data_real
 	);
@@ -443,7 +442,8 @@ begin
 		dds_tuner_tdata => slv_reg1,
 		dds_tuner_tvalid => '1',
 		sys_clk => s_axi_aclk,
-		resetn => '1',
+		resetn => not slv_reg2(0),
+		-- resetn => '1',
 		real_data => real_out,
 		imag_data => imag_out,
 		tdata_valid(0) => m_axis_tvalid
